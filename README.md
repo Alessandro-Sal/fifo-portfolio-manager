@@ -1,32 +1,53 @@
 # FIFO Portfolio Manager 📊
 
-A Google Apps Script to manage and calculate stock positions using FIFO (First-In-First-Out) logic.
+A robust Google Apps Script toolkit designed to manage and calculate **Stock** and **Cryptocurrency** portfolio positions using the **First-In-First-Out (FIFO)** accounting method.
+
+This script helps track cost basis, remaining shares/coins, and average buy prices directly inside Google Sheets, handling complex decimal precision for different asset classes.
 
 ## 🚀 Features
-- Calculates remaining stock positions using FIFO logic  
-- Handles Buy, Sell, and DRIP transactions  
-- Automatically updates dates in Google Sheets when editing rows  
-- Lightweight and easy to integrate
+
+- **Dual Asset Support:**
+  - **Stocks:** Standard calculation with **5-decimal** precision.
+  - **Crypto:** High-precision calculation with **8-decimal** precision to handle fractional coins (e.g., BTC, ETH).
+- **FIFO Logic:** Strictly sells the oldest lots first to accurately calculate the remaining cost basis.
+- **Transaction Support:** Handles `Buy`, `Sell`, `DRIP` (Dividend Reinvestment), and `REWARD` (Staking/Airdrops).
+- **Automation:** Includes an `onEdit` trigger to automatically timestamp entries when data is entered.
+- **Spreadsheet Integration:** Designed to work as custom formulas inside Google Sheets cells.
+
+## 🛠️ Installation
+
+1. Open your Google Sheet.
+2. Navigate to **Extensions** > **Apps Script**.
+3. Create a new script file (e.g., `fifo.js`).
+4. Copy and paste the project code into the editor.
+5. Save the project.
+6. Use the custom functions directly in your spreadsheet cells (e.g., `=myPositions(...)`).
 
 ## 🧩 Functions Overview
-### `generateTrade(stockQuant, stockPrice, action)`
-Creates a trade object.
 
-### `generateFifo(security, actions, quantity, price)`
-Applies FIFO logic to maintain active trades per ticker.
+### 1. Stock Calculation
+#### `myPositions(security, actions, quantity, price)`
+Calculates the current portfolio status for standard stocks.
+- **security:** Range of Tickers/Symbols.
+- **actions:** Range of Actions (Buy, Sell, DRIP).
+- **quantity:** Range of quantities transacted.
+- **price:** Range of price per share.
+- **Returns:** An array of `[Ticker, Total Shares, Average Cost]`.
 
-### `myPositions(security, actions, quantity, price)`
-Returns the list of open positions with average price.
+### 2. Crypto Calculation
+#### `myCryptoPositions(security, actions, quantity, price)`
+Calculates the current portfolio status for cryptocurrencies. Uses **8 decimal precision** to prevent floating-point errors on small fractional amounts.
+- **Returns:** An array of `[Symbol, Total Coins, Average Cost]`.
 
-### `onEdit(e)`
-Google Sheets trigger function that auto-fills the date in column A when column B is edited (from row 20 onward).
+### 3. Automation
+#### `onEdit(e)`
+A built-in Google Sheets trigger.
+- **Behavior:** Automatically inserts the current date in **Column A** when **Column B** is edited (active only from row 20 onwards to preserve headers).
 
 ## 📄 Example Usage
-```javascript
-const security = ["AAPL", "AAPL", "AAPL"];
-const actions = ["Buy", "Buy", "Sell"];
-const quantity = [10, 5, 8];
-const price = [150, 160, 170];
 
-console.log(myPositions(security, actions, quantity, price));
-// Output: [["AAPL", 7, 154.29]]
+### In Google Sheets
+Assuming your data is organized with Tickers in Col B, Actions in Col C, Qty in Col D, and Price in Col E:
+
+```excel
+=myPositions(B2:B, C2:C, D2:D, E2:E)
